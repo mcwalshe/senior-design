@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <!--meta http-equiv="Content-Security-Policy" content="default-src 'self' data: 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *-->
+
+    <!-- Required meta tags-->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+
+    <!-- Your app title -->
+    <title>Home Energy Monitoring</title>
+
+    <!-- This template defaults to the iOS CSS theme. To support both iOS and material design themes, see the Framework7 Tutorial at the link below:
+        http://www.idangero.us/framework7/tutorials/maintain-both-ios-and-material-themes-in-single-app.html
+     -->
+
+    <link rel="stylesheet" href="lib/framework7/css/framework7.ios.min.css">
+    <link rel="stylesheet" href="lib/framework7/css/framework7.ios.colors.min.css">
+
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+    <!-- Status bar overlay for full screen mode (PhoneGap) -->
+    <div class="statusbar-overlay"></div>
+
+    <!-- Panels overlay-->
+    <div class="panel-overlay"></div>
+
+    <!-- Views -->
+    <div class="views">
+        <!-- Your main view, should have "view-main" class -->
+        <div class="view view-main">
+            <!-- Top Navbar-->
+            <div class="navbar">
+                <div class="navbar-inner">
+                    <!-- We need cool sliding animation on title element, so we have additional "sliding" class -->
+                    <div class="center sliding">Energy Monitor</div>
+                    <div class="right">
+                        <!--
+                          Right link contains only icon - additional "icon-only" class
+                          Additional "open-panel" class tells app to open panel when we click on this link
+                        -->
+                        <!--a href="#" class="link icon-only open-panel"><i class="icon icon-bars"></i></a-->
+                    </div>
+                </div>
+            </div>
+            <!-- Pages container, because we use fixed-through navbar and toolbar, it has additional appropriate classes-->
+            <div class="pages navbar-through toolbar-through">
+                <!-- Page, "data-page" contains page name -->
+                <div data-page="index" class="page">
+                    <!-- Scrollable page content -->
+                    <div class="page-content">
+                        <div class="content-block">
+                               <!-- In this block, need to use JS to generate a table of data
+                                based on a form submission probably. They choose a date ( or range) to view
+                                energy consumption and total cost for that day.
+                                Maybe can highlight peak hours in red?
+                                EDIT: cannot use a form with php action. will need to use javascript function
+                                    and some kind of ftp or php (with curl) to access data. more thought needed.
+                                    DUH USE AJAX TO RETURN WHAT U NEED
+                                -->
+
+                                <form name="getDay">
+                                <p>Select the date for which to view energy usage data:</p>
+                                <select  id="selday">
+                                <option value="">Select a date:</option>
+                                <option value="2017-04-22">April 22, 2017</option>
+                                <option value="2017-04-23">April 23, 2017</option>
+                                <option value="2017-04-25">April 25, 2017</option>
+                                <option value="2017-04-27">April 27, 2017</option>
+                                </select>
+                                <button id="submit" onclick="onClick()" type=button>Go!</button>
+                                </form>
+                                <div id=energyChart></div>
+                                <h3>Total Day's Cost: $6.25</h3>
+                                <div id="table" display="visible">
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" src="lib/framework7/js/framework7.min.js"></script>
+    <script type="text/javascript" src="js/my-app.js"></script>
+    <script>
+        function onClick() {
+            document.getElementById("table").innerHTML = "";
+            var sel = document.getElementById("selday");
+            var dateChosen = sel.value;
+                if (dateChosen == "") {
+                    document.getElementById("table").innerHTML = "No date selected.";
+                return;
+                } else { 
+                    if (window.XMLHttpRequest) {
+                        // code for IE7+, Firefox, Chrome, Opera, Safari
+                        xmlhttp = new XMLHttpRequest();
+                    } else {
+                        // code for IE6, IE5
+                        xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+                    }
+                    xmlhttp.onreadystatechange = function() {
+                        if (this.readyState == 4 && this.status == 200) {
+                            document.getElementById("table").innerHTML = this.responseText;
+                        }
+                    };
+                    xmlhttp.open("GET", "energy.php?day="+ dateChosen,true);
+                    xmlhttp.withCredentials = true;
+                    xmlhttp.send();
+                }
+        }
+        function displayGraph() {
+            var ref = cordova.InAppBrowser.open('http://u.arizona.edu/~mcwalshe/srdesign/energy.php', '_self', 'location=yes');
+        }    
+    </script>
+        }
+</body>
+
+</html>
